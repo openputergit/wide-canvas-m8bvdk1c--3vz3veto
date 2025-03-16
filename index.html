@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matrimony App</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        .profile-card:hover {
+            transform: translateY(-5px);
+            transition: transform 0.3s ease;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+    <!-- Navigation -->
+    <nav class="bg-red-600 text-white p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold">MatrimonyApp</h1>
+            <div class="flex gap-4">
+                <button onclick="toggleModal('loginModal')" class="px-4 py-2 bg-white text-red-600 rounded-lg">Login</button>
+                <button onclick="toggleModal('registerModal')" class="px-4 py-2 border border-white rounded-lg">Register</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="container mx-auto py-8">
+        <!-- Search Filters -->
+        <div class="bg-white rounded-lg p-6 mb-8 shadow-md">
+            <h2 class="text-xl font-semibold mb-4">Find Your Perfect Match</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <select class="p-2 border rounded" id="ageFilter">
+                    <option value="">Age Range</option>
+                    <option value="18-25">18-25</option>
+                    <option value="26-35">26-35</option>
+                    <option value="36-45">36-45</option>
+                </select>
+                <select class="p-2 border rounded" id="religionFilter">
+                    <option value="">Religion</option>
+                    <option value="Hindu">Hindu</option>
+                    <option value="Muslim">Muslim</option>
+                    <option value="Christian">Christian</option>
+                    <option value="Sikh">Sikh</option>
+                </select>
+                <select class="p-2 border rounded" id="locationFilter">
+                    <option value="">Location</option>
+                    <option value="Delhi">Delhi</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="Bangalore">Bangalore</option>
+                </select>
+                <button onclick="applyFilters()" class="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700">
+                    Search Matches
+                </button>
+            </div>
+        </div>
+
+        <!-- Profile Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="profileContainer">
+            <!-- Profiles will be populated here -->
+        </div>
+    </main>
+
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal">
+        <div class="bg-white p-8 rounded-lg w-96 mx-auto my-20">
+            <h2 class="text-2xl font-bold mb-4">Login</h2>
+            <form id="loginForm">
+                <input type="email" placeholder="Email" class="w-full p-2 mb-4 border rounded" required>
+                <input type="password" placeholder="Password" class="w-full p-2 mb-4 border rounded" required>
+                <button type="submit" class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">Login</button>
+            </form>
+            <p class="mt-4 text-sm text-gray-600">Demo Login: admin@demo.com / Password: admin123</p>
+            <button onclick="toggleModal('loginModal')" class="absolute top-4 right-4 text-gray-600">&times;</button>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div id="registerModal" class="modal">
+        <div class="bg-white p-8 rounded-lg w-96 mx-auto my-20">
+            <h2 class="text-2xl font-bold mb-4">Register</h2>
+            <form id="registerForm">
+                <input type="text" placeholder="Full Name" class="w-full p-2 mb-4 border rounded" required>
+                <input type="email" placeholder="Email" class="w-full p-2 mb-4 border rounded" required>
+                <input type="password" placeholder="Password" class="w-full p-2 mb-4 border rounded" required>
+                <select class="w-full p-2 mb-4 border rounded" required>
+                    <option value="">Select Gender</option>
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                </select>
+                <input type="number" placeholder="Age" class="w-full p-2 mb-4 border rounded" required>
+                <button type="submit" class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">Register</button>
+            </form>
+            <button onclick="toggleModal('registerModal')" class="absolute top-4 right-4 text-gray-600">&times;</button>
+        </div>
+    </div>
+
+    <script>
+        // Demo profiles data
+        const demoProfiles = [
+            {
+                name: "Priya Sharma",
+                age: 28,
+                location: "Mumbai",
+                religion: "Hindu",
+                image: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=300&ixid=MnwxfDB8MXxyYW5kb218MHx8aW5kaWFuLHdvbWFufHx8fHx8MTcwNjg4ODY5OQ&ixlib=rb-4.0.3&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=300",
+                bio: "Software Engineer | Love traveling and cooking"
+            },
+            {
+                name: "Rahul Verma",
+                age: 32,
+                location: "Delhi",
+                religion: "Hindu",
+                image: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=300&ixid=MnwxfDB8MXxyYW5kb218MHx8aW5kaWFuLG1hbnx8fHx8fDE3MDY4ODg3MDA&ixlib=rb-4.0.3&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=300",
+                bio: "Business Analyst | Cricket enthusiast"
+            },
+            {
+                name: "Anjali Patel",
+                age: 27,
+                location: "Bangalore",
+                religion: "Hindu",
+                image: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=300&ixid=MnwxfDB8MXxyYW5kb218MHx8aW5kaWFuLHdvbWFufHx8fHx8MTcwNjg4ODcwMQ&ixlib=rb-4.0.3&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=300",
+                bio: "Doctor | Passionate about healthcare"
+            },
+            {
+                name: "Arjun Singh",
+                age: 30,
+                location: "Mumbai",
+                religion: "Sikh",
+                image: "https://images.unsplash.com/photo-1566492031773-4f4e44671857?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=300&ixid=MnwxfDB8MXxyYW5kb218MHx8aW5kaWFuLG1hbnx8fHx8fDE3MDY4ODg3MDI&ixlib=rb-4.0.3&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=300",
+                bio: "Entrepreneur | Fitness freak"
+            },
+            {
+                name: "Sarah Khan",
+                age: 26,
+                location: "Delhi",
+                religion: "Muslim",
+                image: "https://images.unsplash.com/photo-1592621385612-4d7129426394?crop=entropy&cs=tinysrgb&fit=crop&fm=jpg&h=300&ixid=MnwxfDB8MXxyYW5kb218MHx8aW5kaWFuLHdvbWFufHx8fHx8MTcwNjg4ODcwMw&ixlib=rb-4.0.3&q=80&utm_campaign=api-credit&utm_medium=referral&utm_source=unsplash_source&w=300",
+                bio: "Fashion Designer | Art lover"
+            }
+        ];
+
+        // Function to create profile cards
+        function createProfileCard(profile) {
+            return `
+                <div class="profile-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <img src="${profile.image}" alt="${profile.name}" class="w-full h-64 object-cover">
+                    <div class="p-4">
+                        <h3 class="text-xl font-semibold">${profile.name}, ${profile.age}</h3>
+                        <p class="text-gray-600">${profile.location} | ${profile.religion}</p>
+                        <p class="mt-2">${profile.bio}</p>
+                        <button class="mt-4 w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">
+                            Connect Now
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Function to display profiles
+        function displayProfiles(profiles) {
+            const container = document.getElementById('profileContainer');
+            container.innerHTML = profiles.map(profile => createProfileCard(profile)).join('');
+        }
+
+        // Function to apply filters
+        function applyFilters() {
+            const ageRange = document.getElementById('ageFilter').value;
+            const religion = document.getElementById('religionFilter').value;
+            const location = document.getElementById('locationFilter').value;
+
+            let filteredProfiles = [...demoProfiles];
+
+            if (religion) {
+                filteredProfiles = filteredProfiles.filter(profile => profile.religion === religion);
+            }
+            if (location) {
+                filteredProfiles = filteredProfiles.filter(profile => profile.location === location);
+            }
+            if (ageRange) {
+                const [min, max] = ageRange.split('-').map(Number);
+                filteredProfiles = filteredProfiles.filter(profile => profile.age >= min && profile.age <= max);
+            }
+
+            displayProfiles(filteredProfiles);
+        }
+
+        // Function to toggle modals
+        function toggleModal(modalId) {
+            const modal = document.getElementById(modalId);
+            modal.classList.toggle('active');
+        }
+
+        // Event listeners
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = e.target.elements[0].value;
+            const password = e.target.elements[1].value;
+            if (email === 'admin@demo.com' && password === 'admin123') {
+                alert('Login successful!');
+                toggleModal('loginModal');
+            } else {
+                alert('Invalid credentials. Please use demo login details.');
+            }
+        });
+
+        document.getElementById('registerForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Registration successful!');
+            toggleModal('registerModal');
+        });
+
+        // Initial display of profiles
+        displayProfiles(demoProfiles);
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
